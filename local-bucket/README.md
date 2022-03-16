@@ -1,0 +1,1 @@
+This folder is for storing our logs. To delete it, code needs to be modified or else the bot will break.
