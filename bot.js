@@ -3,10 +3,12 @@ const { readFileSync, writeFileSync } = require('fs');
 const path = require('path');
 const axios = require('axios');
 
+const calcPercentageDiffwithBase = (current, base) => 100 * ((current - base) / base);
+
 const fetchPrices = async (base) => {
   let response;
   try {
-    response = await axios.get(`${process.env.BASE_URL}/${base}`); // TODO optimize with path.join
+    response = await axios.get(`${process.env.BASE_URL}/${base}`);
   } catch (error) {
     console.error(error);
     process.exit(1);
@@ -22,13 +24,14 @@ const updateLogs = async (pairString) => {
   // Fetching current market prices
   const data = await fetchPrices(base);
 
-  // TODO: check inconsistency between returned values
+  // TODO: check format inconsistency of response's [pair] property.
   const possiblePairStrings = [`${asset}-${base}`, `${asset}${base}`];
 
   // Finding and modifying our data entry
   const priceObj = (data || []).find((p) => possiblePairStrings.includes(p.pair)) || {};
   priceObj.dateTime = new Date().toUTCString();
 
+  // Updating log file
   const logsBuffer = readFileSync(logsFilePath);
   const logs = JSON.parse(logsBuffer);
   logs.push(priceObj);
@@ -45,22 +48,43 @@ const tick = ({ pairs, oscillation }) => {
   Promise.allSettled(pairs.map(pairString => updateLogs(pairString))).then((results) => {
     console.clear();
     results.forEach(res => {
-      console.table(res.value?.logs?.slice(-10).map((entry) => ({
+      const logs = res.value?.logs || [];
+      console.log(res.value?.pair, 'TABLE::')
+
+      console.table(logs.slice(-10).map((entry) => ({
         'Pair': res.value?.pair,
         'Ask Price': entry.ask,
         'Bid Price': entry.bid,
         'Date / Time': entry.dateTime,
       })));
+
+      // This logic assumes that we need to compare each [new value], with the [first value] that we got when we started the process.
+      const current = logs[logs.length -1]?.ask || 0;
+      const base = logs[0]?.ask || 0;
+      const diff = calcPercentageDiffwithBase(current, base); // this calc is extracted since it'a a utility function and can be reused. The rest are module related.
+      const isDiffWorthMentioning = Math.abs(diff) > oscillation;
+      const isDecraseWorthMentioning = isDiffWorthMentioning && (diff < 0);
+      const isIncreaseWorthMentioning = isDiffWorthMentioning && (diff > 0);
+
+      if (isDecraseWorthMentioning) {
+        console.log();
+        console.log('Price is down by', diff, '%. ', 'Current price is', current, '. Base price was ', base);
+      } else if (isIncreaseWorthMentioning) {
+        console.log();
+        console.log('Price is up by', diff, '%. ', 'Current price is', current, '. Base price was ', base);
+      }
+      console.log("===============================================================================================================");
+      console.log();
     })
   })
 };
 
 const run = () => {
+  // setting defaults
   const pairsArray = process.env.PAIRS ? process.env.PAIRS.split(",") : ['BTC-USD'];
-
   const config = {
     pairs: pairsArray,
-    oscillation: process.env.OSCILLATION_MODIFIER || 0.0001,
+    oscillation: process.env.OSCILLATION_MODIFIER || 0.01,
   };
 
   // create/reset log files
@@ -69,10 +93,11 @@ const run = () => {
     writeFileSync(logsFilePath, JSON.stringify([], null, 2));
   })
 
+  // init
   tick(config);
   const id = setInterval(tick, process.env.INTERVAL, config);
 
-  // Stopping the process after 2 days
+  // Stopping the process after 2 days (Memory leak if left alone)
   setTimeout(() => {
     clearInterval(id);
     process.exit(1);
