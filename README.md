@@ -8,7 +8,7 @@ npm install
 ```
 
 ## Usage
-
+For better experience, run the project from a large terminal screen.
 ### As node script
 ```bash
 node bot
