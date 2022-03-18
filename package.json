@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Test bot to get an exchange rate of a single pair",
   "main": "bot.js",
+  "engines": {
+    "node": "^14.0.0",
+    "npm": ">= 3.0.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node bot.js"

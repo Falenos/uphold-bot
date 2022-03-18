@@ -49,8 +49,8 @@ const tick = ({ pairs, oscillation }) => {
     console.clear();
     results.forEach(res => {
       const logs = res.value?.logs || [];
-      console.log(res.value?.pair, 'TABLE::')
 
+      console.log(res.value?.pair, 'TABLE')
       console.table(logs.slice(-10).map((entry) => ({
         'Pair': res.value?.pair,
         'Ask Price': entry.ask,
@@ -68,10 +68,10 @@ const tick = ({ pairs, oscillation }) => {
 
       if (isDecraseWorthMentioning) {
         console.log();
-        console.log('Price is down by', diff, '%. ', 'Current price is', current, '. Base price was ', base);
+        console.log('Price is down by', diff, '%. ', 'Current price is', current, '. Base price was', base);
       } else if (isIncreaseWorthMentioning) {
         console.log();
-        console.log('Price is up by', diff, '%. ', 'Current price is', current, '. Base price was ', base);
+        console.log('Price is up by', diff, '%. ', 'Current price is', current, '. Base price was', base);
       }
       console.log("===============================================================================================================");
       console.log();
