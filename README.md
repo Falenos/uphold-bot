@@ -25,16 +25,19 @@ If the environment variables in .env file are removed, the only difference is th
 
 ### How it works
 The script is requesting the latest prices for any pair supported by `uphold` api, in a period set in `.env` file. Default is 5sec.
+
 Currently, in case any of these api calls fail, the whole process will fail and `exit`.
+
 All the incoming values are `stored` in files automatically created (a rough file db approach).
+
 All incoming values are compared to the `first value` we got when we started the process.
-In case the difference is larger that the ocillation limit an alert will be displayed.
-The relevant `equation` is the following:
+
+In case the difference is larger that the ocillation limit an alert will be displayed. The relevant `equation` is the following:
 ```bash
 calcPercentageDiff = (current, base) => 100 * ((current - base) / base);
 ```
 
-### Output
+## Output
 ### Pair price table
 In your terminal you can see `1 table per pair` set in the `.env `file with the latest `10` values.
 
