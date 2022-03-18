@@ -45,7 +45,7 @@ In your terminal you can see `1 table per pair` set in the `.env `file with the 
 In your terminal you can see `1 alert per pair` set in the `.env `file as long as the current price is up or down more than the ocillation threshhold, set also in the `.env `file.
 
 ## Limitations
-we are limited to the pairs that uphold api supports of course.
+We are limited to the pairs that uphold api supports of course.
 Also the calculation equation is `very` specific.
 
 ## Features to come
@@ -58,4 +58,4 @@ Also the calculation equation is `very` specific.
 [ISC](https://en.wikipedia.org/wiki/ISC_license)
 
 ## Support
-Installator is supported on Node 14 / npm 3 and above.
+Node 14 / npm 3 and above.
